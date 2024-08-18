@@ -1,0 +1,10 @@
+- Definie file structure []
+- Parse file structure []
+- Render a template []
+- Server command []
+- Build command for output []
+- Add air to server command for hot reloading
+- Handle ambiguous paths e.g. {{ id }} []
+    - Data structure []
+    - Passing path to template []
+- Documentation
