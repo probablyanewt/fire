@@ -1,30 +1,34 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 )
 
-func pageParser() page {
-	root := page{
-		uri: "/",
-	}
+func pageParser() *page {
+	root := newPageTree()
 
-	templatePaths := make([]string, 0)
-
-	filepath.Walk("./pages", func(path string, info os.FileInfo, err error) error {
-		if info.IsDir() {
-			return err
-		}
-
-		templatePaths = append(templatePaths, path)
-
-		return err
-	})
-
-	fmt.Printf(strings.Join(templatePaths, "\n"))
+	filepath.Walk("./pages", filePathWalker)
 
 	return root
+}
+
+func filePathWalker(path string, info os.FileInfo, err error) error {
+
+	if info.IsDir() {
+		return err
+	}
+
+	splitPath := strings.Split(path, "/")
+
+	_, trimmedPath := splitPath[0], splitPath[1:]
+
+	gohtmlRegEx := regexp.MustCompile(".*.gohtml")
+	if gohtmlRegEx.MatchString(trimmedPath[0]) {
+
+	}
+
+	return err
 }
