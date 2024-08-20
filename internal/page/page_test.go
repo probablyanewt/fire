@@ -1,4 +1,4 @@
-package main
+package page
 
 import (
 	"regexp"
@@ -62,7 +62,7 @@ func TestGetNoChildByName(t *testing.T) {
 
 // TestGetByUriShallow calls page.getByUri with a shallow match
 func TestGetByUriShallow(t *testing.T) {
-	uri := "contact"
+	uri := "/contact"
 	want := regexp.MustCompile("^contact$")
 	root, _ := createTestPageTree()
 	result, _ := root.getByUri(uri)
@@ -74,7 +74,7 @@ func TestGetByUriShallow(t *testing.T) {
 
 // TestGetByUriDeep calls page.GetByUriPath with a deep match
 func TestGetByUriDeep(t *testing.T) {
-	uri := "about/something/cool"
+	uri := "/about/something/cool"
 	want := regexp.MustCompile("^cool$")
 	root, _ := createTestPageTree()
 	result, _ := root.getByUri(uri)
@@ -86,7 +86,7 @@ func TestGetByUriDeep(t *testing.T) {
 
 // TestCrawlTreeByUriShallow calls page.crawlTreeByUri with a shallow match
 func TestCrawlTreeByUriShall(t *testing.T) {
-	uri := "contact"
+	uri := "/contact"
 	want := regexp.MustCompile("^contact$")
 	root, _ := createTestPageTree()
 	result, remainder, _ := root.crawlTreeByUri(uri)
@@ -102,7 +102,7 @@ func TestCrawlTreeByUriShall(t *testing.T) {
 
 // TestCrawlTreeByUriDeep calls page.crawlTreeByUri with a deep match
 func TestCrawlTreeByUriDeep(t *testing.T) {
-	uri := "about/something/cool"
+	uri := "/about/something/cool"
 	want := regexp.MustCompile("^cool$")
 	root, _ := createTestPageTree()
 	result, remainder, _ := root.crawlTreeByUri(uri)
@@ -118,7 +118,7 @@ func TestCrawlTreeByUriDeep(t *testing.T) {
 
 // TestCrawlTreeByUriIncomplete calls page.crawlTreeByUri with a incomplete match
 func TestCrawlTreeByUriIncomplete(t *testing.T) {
-	uri := "about/something/nonsense"
+	uri := "/about/something/nonsense"
 	wantName := regexp.MustCompile("^something$")
 	wantRemainder := regexp.MustCompile("^nonsense$")
 	root, _ := createTestPageTree()
@@ -133,8 +133,22 @@ func TestCrawlTreeByUriIncomplete(t *testing.T) {
 	}
 }
 
-//TODO:
 // TestAddToTreeFromUrI calls page.addToTreeFromUri to ensure valid nodes are added to the tree
+func TestAddToTreeFromUri(t *testing.T) {
+	uri := "/contact/someone/different"
+	wantSomeone := regexp.MustCompile("^someone$")
+	wantDifferent := regexp.MustCompile("^different$")
+	root, _ := createTestPageTree()
+	result, _ := root.addToTreeFromUri(uri)
+
+	if !wantDifferent.MatchString(result.name) {
+		t.Errorf("Wanted name %q, received %q", wantDifferent, result.name)
+	}
+
+	if !wantSomeone.MatchString(result.parent.name) {
+		t.Errorf("Wanted name %q, received %q", wantSomeone, result.parent.name)
+	}
+}
 
 // TestFilePathToUri calls filePathToUri to ensure a valid uri is created from a filePath
 func TestFilePathToUri(t *testing.T) {
@@ -151,6 +165,17 @@ func TestFilePathToUri(t *testing.T) {
 func TestIndexFilePathToUri(t *testing.T) {
 	filePath := "pages/blog/category/index.gohtml"
 	want := regexp.MustCompile("^blog/category$")
+	result := filePathToUri(filePath)
+
+	if !want.MatchString(result) {
+		t.Errorf("got %q, wanted %q", result, want)
+	}
+}
+
+// TestRootFilePathToUri calls filePathToUri to ensure a valid uri is created for a root path
+func TestRootFilePathToUri(t *testing.T) {
+	filePath := "/index.gohtml"
+	want := regexp.MustCompile("^/$")
 	result := filePathToUri(filePath)
 
 	if !want.MatchString(result) {
