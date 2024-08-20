@@ -11,15 +11,15 @@ import (
 func Start(pageTree *page.Page) {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Request received: %q %q\n", r.Method, r.URL.Path)
-		result, err := pageTree.GetByUri(r.URL.Path)
+		result, err := pageTree.GetDeepChildByUri(r.URL.Path)
 		if err != nil || result.GetTemplate() == nil {
+			fmt.Printf("404: %q %q\n", r.Method, r.URL.Path)
 			http.NotFound(w, r)
 			return
 		}
 
-		println(result.Name)
+		fmt.Printf("200: %q %q\n", r.Method, r.URL.Path)
 		result.GetTemplate().Execute(w, struct{}{})
-		// io.WriteString(w, "hello world")
 	})
 
 	println("Starting server...")
