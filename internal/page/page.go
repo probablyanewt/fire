@@ -3,6 +3,7 @@ package page
 import (
 	"fmt"
 	"html/template"
+	"io"
 	"strings"
 )
 
@@ -13,10 +14,6 @@ type Page struct {
 	parent   *Page
 }
 
-func (p *Page) GetTemplate() *template.Template {
-	return p.template
-}
-
 // GetDeepChildByUri uses a breadth first search to find a page which matches the uri path exactly from the current page
 // It returns a page if one is found, and any errors encountered
 func (p *Page) GetDeepChildByUri(uri string) (*Page, error) {
@@ -24,7 +21,10 @@ func (p *Page) GetDeepChildByUri(uri string) (*Page, error) {
 		return p, nil
 	}
 
+	// Split uri by / and remove first item as it will be empty
 	uriSections := strings.Split(uri, "/")
+	_, uriSections = uriSections[0], uriSections[1:]
+
 	lastNode := p
 	for _, uriSection := range uriSections {
 		result, err := lastNode.getChildByName(uriSection)
@@ -36,6 +36,16 @@ func (p *Page) GetDeepChildByUri(uri string) (*Page, error) {
 	}
 
 	return lastNode, nil
+}
+
+// HasTemplate is used to determine whether a template has been parsed for a given page
+// It returns a boolean
+func (p *Page) HasTemplate() bool {
+	return p.template != nil
+}
+
+func (p *Page) RenderTemplate(w io.Writer) {
+	p.template.Execute(w, struct{}{})
 }
 
 // addChild adds a child to the current page,

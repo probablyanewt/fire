@@ -7,6 +7,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/probablyanewt/fire/internal/logger"
 )
 
 // ParseCompleteTree parses the pages directory and constructs a complete page tree with parsed templates.
@@ -60,7 +62,7 @@ func (p *Page) setTemplateByFilePath(filePath string, components []string) error
 // It returns any errors which occured.
 func (p *Page) addTemplateToTreeByFilePath(filePath string, components []string) error {
 	uri := filePathToUri(filePath)
-	fmt.Printf("Adding template %q to node %q\n", filePath, uri)
+	logger.Debug("Adding template %v to node %v", filePath, uri)
 	newNode, err := p.addToTreeFromUri(uri)
 	if err != nil {
 		return err
