@@ -100,7 +100,10 @@ func (p *Page) crawlTreeByUri(uri string) (*Page, *string, error) {
 		return p, nil, nil
 	}
 
+	// Split uri by / and remove first item as it will be empty
 	uriSections := strings.Split(uri, "/")
+	_, uriSections = uriSections[0], uriSections[1:]
+
 	lastNode := p
 	for i, uriSection := range uriSections {
 		result, err := lastNode.getChildByName(uriSection)

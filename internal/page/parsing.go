@@ -3,7 +3,6 @@ package page
 import (
 	"fmt"
 	"html/template"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -14,7 +13,9 @@ import (
 // ParseCompleteTree parses the pages directory and constructs a complete page tree with parsed templates.
 // It returns the root page
 func ParseCompleteTree() *Page {
+	logger.Info("Parsing templates")
 	root := NewPage("/", nil)
+
 	components := make([]string, 0)
 	filepath.Walk("./components", func(path string, info os.FileInfo, err error) error {
 		if info.IsDir() {
@@ -32,7 +33,7 @@ func ParseCompleteTree() *Page {
 
 		tmplErr := root.addTemplateToTreeByFilePath(path, components)
 		if tmplErr != nil {
-			log.Fatal(tmplErr)
+			logger.Fatal("Error parsing template: %v", tmplErr)
 		}
 		return err
 	})
@@ -51,7 +52,7 @@ func (p *Page) setTemplateByFilePath(filePath string, components []string) error
 	// templ, err := template.ParseFiles(filePath)
 	if err != nil {
 		println(err.Error())
-		log.Fatal("Failed to parse template at: ", filePath)
+		logger.Fatal("Failed to parse template at: ", filePath)
 	}
 
 	p.template = templ
@@ -89,5 +90,5 @@ func filePathToUri(filePath string) string {
 		return "/"
 	}
 
-	return strings.Join(splitUri, "/")
+	return "/" + strings.Join(splitUri, "/")
 }

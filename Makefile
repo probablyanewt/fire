@@ -1,2 +1,5 @@
 test-unit:
-	go test ./...
+	@go test ./...
+
+run:
+	@go run ./cmd

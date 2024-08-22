@@ -7,8 +7,8 @@ import (
 
 // createTestPageTree creates a test page tree.
 // It returns the root page, and a deep child page.
-func createTestPageTree() (*page, *page) {
-	rootPage := newPageTree()
+func createTestPageTree() (*Page, *Page) {
+	rootPage := NewPage("/", nil)
 	deepChild := rootPage.addChild("about").addChild("something").addChild("cool")
 	rootPage.addChild("contact")
 	blogPage := rootPage.addChild("blog")
@@ -24,8 +24,8 @@ func TestGetRootPage(t *testing.T) {
 	_, deepChild := createTestPageTree()
 	result := deepChild.getRootPage()
 
-	if !want.MatchString(result.name) {
-		t.Errorf("got %q, wanted %q", result.name, want)
+	if !want.MatchString(result.Name) {
+		t.Errorf("got %q, wanted %q", result.Name, want)
 	}
 }
 
@@ -60,27 +60,27 @@ func TestGetNoChildByName(t *testing.T) {
 	}
 }
 
-// TestGetByUriShallow calls page.getByUri with a shallow match
-func TestGetByUriShallow(t *testing.T) {
+// TestGetDeepChildByUriShallow calls page.GetDeepChildByUri with a shallow match
+func TestGetDeepChildByUriShallow(t *testing.T) {
 	uri := "/contact"
 	want := regexp.MustCompile("^contact$")
 	root, _ := createTestPageTree()
-	result, _ := root.getByUri(uri)
+	result, _ := root.GetDeepChildByUri(uri)
 
-	if !want.MatchString(result.name) {
-		t.Errorf("got %q, wanted %q", result.name, want)
+	if !want.MatchString(result.Name) {
+		t.Errorf("got %q, wanted %q", result.Name, want)
 	}
 }
 
-// TestGetByUriDeep calls page.GetByUriPath with a deep match
-func TestGetByUriDeep(t *testing.T) {
+// TestGetDeepChildByUriDeep calls page.GetDeepChildByUri wiith a deep match
+func TestGetDeepChildByUriDeep(t *testing.T) {
 	uri := "/about/something/cool"
 	want := regexp.MustCompile("^cool$")
 	root, _ := createTestPageTree()
-	result, _ := root.getByUri(uri)
+	result, _ := root.GetDeepChildByUri(uri)
 
-	if !want.MatchString(result.name) {
-		t.Errorf("got %q, wanted %q", result.name, want)
+	if !want.MatchString(result.Name) {
+		t.Errorf("got %q, wanted %q", result.Name, want)
 	}
 }
 
@@ -91,8 +91,8 @@ func TestCrawlTreeByUriShall(t *testing.T) {
 	root, _ := createTestPageTree()
 	result, remainder, _ := root.crawlTreeByUri(uri)
 
-	if !want.MatchString(result.name) {
-		t.Errorf("Wanted uri %q, received %q", want, result.name)
+	if !want.MatchString(result.Name) {
+		t.Errorf("Wanted uri %q, received %q", want, result.Name)
 	}
 
 	if remainder != nil {
@@ -107,8 +107,8 @@ func TestCrawlTreeByUriDeep(t *testing.T) {
 	root, _ := createTestPageTree()
 	result, remainder, _ := root.crawlTreeByUri(uri)
 
-	if !want.MatchString(result.name) {
-		t.Errorf("Wanted uri %q, received %q", want, result.name)
+	if !want.MatchString(result.Name) {
+		t.Errorf("Wanted uri %q, received %q", want, result.Name)
 	}
 
 	if remainder != nil {
@@ -124,8 +124,8 @@ func TestCrawlTreeByUriIncomplete(t *testing.T) {
 	root, _ := createTestPageTree()
 	result, remainder, _ := root.crawlTreeByUri(uri)
 
-	if !wantName.MatchString(result.name) {
-		t.Errorf("Wanted uri %q, received %q", wantName, result.name)
+	if !wantName.MatchString(result.Name) {
+		t.Errorf("Wanted uri %q, received %q", wantName, result.Name)
 	}
 
 	if !wantRemainder.MatchString(*remainder) {
@@ -141,12 +141,12 @@ func TestAddToTreeFromUri(t *testing.T) {
 	root, _ := createTestPageTree()
 	result, _ := root.addToTreeFromUri(uri)
 
-	if !wantDifferent.MatchString(result.name) {
-		t.Errorf("Wanted name %q, received %q", wantDifferent, result.name)
+	if !wantDifferent.MatchString(result.Name) {
+		t.Errorf("Wanted name %q, received %q", wantDifferent, result.Name)
 	}
 
-	if !wantSomeone.MatchString(result.parent.name) {
-		t.Errorf("Wanted name %q, received %q", wantSomeone, result.parent.name)
+	if !wantSomeone.MatchString(result.parent.Name) {
+		t.Errorf("Wanted name %q, received %q", wantSomeone, result.parent.Name)
 	}
 }
 
