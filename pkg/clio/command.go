@@ -5,7 +5,9 @@ import (
 )
 
 type FlagType int64
-type CommandHandler func(args map[string]FlagType) error
+type Flags map[string]FlagType
+type Positionals []string
+type CommandHandler func(flags Flags, positionals Positionals) error
 
 const (
 	String FlagType = iota
@@ -45,17 +47,20 @@ func newCommand(name string, parent *command, handler CommandHandler) *command {
 }
 
 func (c *command) AddNewSubCommand(name string, handler CommandHandler) *command {
+	// TODO change to return error if subcommand exists?
 	commandToAdd := newCommand(name, c, handler)
 	c.subCommands = append(c.subCommands, commandToAdd)
 	return commandToAdd
 }
 
 func (c *command) AddSubCommand(subCommand command) *command {
+	// TODO change to return error if subcommand exists?
+	subCommand.parent = c
 	c.subCommands = append(c.subCommands, &subCommand)
 	return c
 }
 
-func (c *command) validateCommand() []error {
+func (c *command) validate() []error {
 	errors := make([]error, 0)
 
 	if c.name == "" {
@@ -73,6 +78,33 @@ func (c *command) validateCommand() []error {
 	return errors
 }
 
-func (c *command) run() error {
-	return c.handler(make(map[string]FlagType))
+func (c *command) run(args []string) error {
+	return c.handler(make(map[string]FlagType), make([]string, 0))
+}
+
+func (c *command) parseArgs(args []string) error {
+	return nil
+}
+
+// getRootCommand will ascend the tree until a node without a parent is found
+// It returns the root command
+func (c *command) getRootCommand() *command {
+	lastNode := c
+	for {
+		if lastNode.parent == nil {
+			return lastNode
+		}
+		lastNode = lastNode.parent
+	}
+}
+
+// flattenCommandTree flattenns the command tree from the current command into a slice of command references
+// It returns a slive of command references
+func (c *command) flattenCommandTree() []*command {
+	commands := make([]*command, 0)
+	commands = append(commands, c)
+	for _, command := range commands {
+		commands = append(commands, command.subCommands...)
+	}
+	return commands
 }
